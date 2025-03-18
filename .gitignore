@@ -1,4 +1,7 @@
 venv
+.venv
+*.ipynb
 data/
 postgres-data
 .ipynb*
+__pycache__

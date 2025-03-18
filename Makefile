@@ -43,8 +43,11 @@ down:
 
 .PHONY: job
 ## Submit the Flink job
-session_job:
-	docker compose exec jobmanager ./bin/flink run -py /opt/src/job/session_job.py --pyFiles /opt/src -d
+session_job_by_pickup:
+	docker compose exec jobmanager ./bin/flink run -py /opt/src/job/session_job_by_pickup_loc.py --pyFiles /opt/src/job/ -d
+session_job_by_dropoff:
+	docker compose exec jobmanager ./bin/flink run -py /opt/src/job/session_job_by_dropoff_loc.py --pyFiles /opt/src/job/ -d
+
 
 .PHONY: stop
 ## Stops all services in Docker compose

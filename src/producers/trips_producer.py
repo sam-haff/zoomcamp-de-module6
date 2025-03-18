@@ -1,10 +1,27 @@
 import json
 from time import time
 import pandas as pd
+import numpy as np
+import math
 from kafka import KafkaProducer
 
 def json_serializer(data):
     return json.dumps(data).encode() #utf-8 is default
+
+def nan_to_zero(v):
+    if math.isnan(v):
+        return 0
+    return v
+
+def np_to_native(obj):
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return nan_to_zero(float(obj))
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    return obj
+
 
 def main():
     data_source_path = "./src/data/green_tripdata_2019-10.csv.gz"
@@ -27,12 +44,10 @@ def main():
         # Construct the dict.
         # Using the existing var to avoid possible allocs(?).
         # Could use dict comprehension? Like val = { k:v for (k,v) in zip(used_cols, r)}.
-        # Elegant but might be slower unless some jit magic happens.
-        # TODO: do simple ifs to cast PD types to plain python types. Should be faster and is more usable.
         for v in r:
-            val[used_cols[i]] = str(v) 
+            val[used_cols[i]] = np_to_native(v)
             i+=1
-        p.send('green-trips-1', value=val)
+        p.send('green-trips-3', value=val)
         row_n += 1
         if row_n % 100 == 0:
             print("Sent row n " + str(row_n))
